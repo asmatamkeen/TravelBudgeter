@@ -1,6 +1,7 @@
 package gui;
 
 import logic.ExpenseManager;
+import model.Trip;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,53 +10,41 @@ public class BudgetPanel extends JPanel {
 
     private JLabel totalLabel;
     private JLabel remainingLabel;
-    private JTextField budgetField;
 
     public BudgetPanel() {
 
         setBackground(new Color(40, 45, 70));
-        setLayout(new GridLayout(6, 1, 15, 15));
-        setBorder(BorderFactory.createEmptyBorder(60, 200, 60, 200));
+        setLayout(new GridLayout(5, 1, 20, 20));
+        setBorder(BorderFactory.createEmptyBorder(80, 200, 80, 200));
 
-        JLabel title = new JLabel("Budget Planner", SwingConstants.CENTER);
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        totalLabel = createLabel("Total Expenses: 0");
+        remainingLabel = createLabel("Remaining Budget: 0");
 
-        budgetField = new JTextField();
-        budgetField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        JButton refreshButton = new JButton("Refresh");
+        refreshButton.setBackground(new Color(59, 130, 246));
+        refreshButton.setForeground(Color.WHITE);
+        refreshButton.setFocusPainted(false);
 
-        JButton calculateButton = new JButton("Calculate");
-        styleButton(calculateButton);
+        refreshButton.addActionListener(e -> updateBudget());
 
-        totalLabel = createLabel("Total Expenses: 0.0");
-        remainingLabel = createLabel("Remaining Budget: 0.0");
-
-        add(title);
-        add(createLabel("Enter Budget Amount:"));
-        add(budgetField);
-        add(calculateButton);
+        add(createLabel("Trip Budget: " + Trip.budget));
         add(totalLabel);
         add(remainingLabel);
+        add(refreshButton);
+    }
 
-        calculateButton.addActionListener(e -> {
-            try {
-                double budget = Double.parseDouble(budgetField.getText());
-                double total = ExpenseManager.getTotal();
-                double remaining = budget - total;
+    private void updateBudget() {
+        double total = ExpenseManager.getTotal();
+        double remaining = Trip.budget - total;
 
-                totalLabel.setText("Total Expenses: " + total);
-                remainingLabel.setText("Remaining Budget: " + remaining);
+        totalLabel.setText("Total Expenses: " + total);
+        remainingLabel.setText("Remaining Budget: " + remaining);
 
-                if (remaining < 0) {
-                    remainingLabel.setForeground(Color.RED);
-                } else {
-                    remainingLabel.setForeground(Color.GREEN);
-                }
-
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Invalid Budget Input!");
-            }
-        });
+        if (remaining < 0) {
+            remainingLabel.setForeground(Color.RED);
+        } else {
+            remainingLabel.setForeground(Color.GREEN);
+        }
     }
 
     private JLabel createLabel(String text) {
@@ -63,12 +52,5 @@ public class BudgetPanel extends JPanel {
         label.setForeground(Color.WHITE);
         label.setFont(new Font("Segoe UI", Font.BOLD, 18));
         return label;
-    }
-
-    private void styleButton(JButton button) {
-        button.setBackground(new Color(59, 130, 246));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 16));
     }
 }

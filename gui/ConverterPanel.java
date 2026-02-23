@@ -1,53 +1,58 @@
 package gui;
 
+import model.Trip;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 
 public class ConverterPanel extends JPanel {
 
-    private JComboBox<String> fromCurrency;
-    private JComboBox<String> toCurrency;
-    private JTextField amountField;
     private JLabel resultLabel;
-
     private HashMap<String, Double> rates;
 
     public ConverterPanel() {
 
         setBackground(new Color(40, 45, 70));
-        setLayout(new GridLayout(6, 2, 20, 20));
-        setBorder(BorderFactory.createEmptyBorder(60, 150, 60, 150));
+        setLayout(new GridLayout(4, 2, 20, 20));
+        setBorder(BorderFactory.createEmptyBorder(80, 200, 80, 200));
 
         initializeRates();
 
-        fromCurrency = new JComboBox<>(rates.keySet().toArray(new String[0]));
-        toCurrency = new JComboBox<>(rates.keySet().toArray(new String[0]));
-
-        amountField = new JTextField();
+        JTextField amountField = new JTextField();
         amountField.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 
         JButton convertButton = new JButton("Convert");
-        styleButton(convertButton);
+        convertButton.setBackground(new Color(59, 130, 246));
+        convertButton.setForeground(Color.WHITE);
+        convertButton.setFocusPainted(false);
 
-        resultLabel = createLabel("Result: ");
+        resultLabel = new JLabel("Result: ");
+        resultLabel.setForeground(Color.WHITE);
+        resultLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
 
-        add(createLabel("From Currency:"));
-        add(fromCurrency);
-
-        add(createLabel("To Currency:"));
-        add(toCurrency);
-
-        add(createLabel("Amount:"));
+        add(createLabel("Amount (INR):"));
         add(amountField);
-
         add(new JLabel());
         add(convertButton);
-
         add(new JLabel());
         add(resultLabel);
 
-        convertButton.addActionListener(e -> convertCurrency());
+        convertButton.addActionListener(e -> {
+            try {
+                double amount = Double.parseDouble(amountField.getText());
+
+                String destinationCurrency = getCurrencyForDestination(Trip.destination);
+
+                double amountInUSD = amount / rates.get("INR");
+                double converted = amountInUSD * rates.get(destinationCurrency);
+
+                resultLabel.setText("Result: " + String.format("%.2f", converted) + " " + destinationCurrency);
+
+            } catch (Exception ex) {
+                resultLabel.setText("Invalid Input!");
+            }
+        });
     }
 
     private void initializeRates() {
@@ -59,19 +64,16 @@ public class ConverterPanel extends JPanel {
         rates.put("JPY", 150.0);
     }
 
-    private void convertCurrency() {
-        try {
-            String from = (String) fromCurrency.getSelectedItem();
-            String to = (String) toCurrency.getSelectedItem();
-            double amount = Double.parseDouble(amountField.getText());
+    private String getCurrencyForDestination(String destination) {
+        if (destination == null) return "USD";
 
-            double amountInUSD = amount / rates.get(from);
-            double converted = amountInUSD * rates.get(to);
-
-            resultLabel.setText("Result: " + String.format("%.2f", converted) + " " + to);
-
-        } catch (Exception ex) {
-            resultLabel.setText("Invalid Input!");
+        switch (destination.toLowerCase()) {
+            case "usa": return "USD";
+            case "uk": return "GBP";
+            case "japan": return "JPY";
+            case "india": return "INR";
+            case "europe": return "EUR";
+            default: return "USD";
         }
     }
 
@@ -80,12 +82,5 @@ public class ConverterPanel extends JPanel {
         label.setForeground(Color.WHITE);
         label.setFont(new Font("Segoe UI", Font.BOLD, 16));
         return label;
-    }
-
-    private void styleButton(JButton button) {
-        button.setBackground(new Color(59, 130, 246));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 15));
     }
 }
