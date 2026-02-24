@@ -39,6 +39,7 @@ public class DashboardFrame extends JFrame {
         JButton budgetBtn = new JButton("Budget Overview");
         JButton expenseBtn = new JButton("Expense Planner");
         JButton converterBtn = new JButton("Currency Converter");
+        JButton hotelBtn = new JButton("Hotel Plans");
         JButton exitBtn = new JButton("Exit");
 
         // Navigation
@@ -50,6 +51,8 @@ public class DashboardFrame extends JFrame {
 
         converterBtn.addActionListener(e ->
                 switchPanel(new ConverterPanel(this)));
+        hotelBtn.addActionListener(e ->
+                switchPanel(new HotelPanel(this, trip)));
 
         exitBtn.addActionListener(e -> dispose());
 
@@ -57,6 +60,7 @@ public class DashboardFrame extends JFrame {
         panel.add(budgetBtn);
         panel.add(expenseBtn);
         panel.add(converterBtn);
+        panel.add(hotelBtn);
         panel.add(exitBtn);
 
         setContentPane(panel);
