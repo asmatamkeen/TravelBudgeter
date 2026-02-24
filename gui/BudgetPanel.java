@@ -8,49 +8,52 @@ import java.awt.*;
 
 public class BudgetPanel extends JPanel {
 
-    private JLabel totalLabel;
+    private JLabel totalBudgetLabel;
+    private JLabel totalExpenseLabel;
     private JLabel remainingLabel;
 
-    public BudgetPanel() {
+    public BudgetPanel(DashboardFrame frame, Trip trip) {
 
-        setBackground(new Color(40, 45, 70));
-        setLayout(new GridLayout(5, 1, 20, 20));
-        setBorder(BorderFactory.createEmptyBorder(80, 200, 80, 200));
+        setLayout(new GridLayout(5, 1, 15, 15));
+        setBorder(BorderFactory.createEmptyBorder(40, 60, 40, 60));
 
-        totalLabel = createLabel("Total Expenses: 0");
-        remainingLabel = createLabel("Remaining Budget: 0");
+        JLabel title = new JLabel("Budget Overview", SwingConstants.CENTER);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
 
-        JButton refreshButton = new JButton("Refresh");
-        refreshButton.setBackground(new Color(59, 130, 246));
-        refreshButton.setForeground(Color.WHITE);
-        refreshButton.setFocusPainted(false);
+        totalBudgetLabel = new JLabel();
+        totalExpenseLabel = new JLabel();
+        remainingLabel = new JLabel();
 
-        refreshButton.addActionListener(e -> updateBudget());
+        JButton refreshBtn = new JButton("Refresh");
+        JButton backBtn = new JButton("Back");
 
-        add(createLabel("Trip Budget: " + Trip.budget));
-        add(totalLabel);
+        updateBudget(trip);
+
+        refreshBtn.addActionListener(e -> updateBudget(trip));
+        backBtn.addActionListener(e -> frame.showDashboardPanel());
+
+        add(title);
+        add(totalBudgetLabel);
+        add(totalExpenseLabel);
         add(remainingLabel);
-        add(refreshButton);
+        add(refreshBtn);
+        add(backBtn);
     }
 
-    private void updateBudget() {
-        double total = ExpenseManager.getTotal();
-        double remaining = Trip.budget - total;
+    private void updateBudget(Trip trip) {
 
-        totalLabel.setText("Total Expenses: " + total);
-        remainingLabel.setText("Remaining Budget: " + remaining);
+        double totalBudget = trip.getBudget();
 
-        if (remaining < 0) {
-            remainingLabel.setForeground(Color.RED);
-        } else {
-            remainingLabel.setForeground(Color.GREEN);
-        }
-    }
+        double totalExpensesNative = ExpenseManager.getTotalNative();
+        double totalExpensesConverted = ExpenseManager.getTotalConverted();
 
-    private JLabel createLabel(String text) {
-        JLabel label = new JLabel(text, SwingConstants.CENTER);
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        return label;
+        double remaining = totalBudget - totalExpensesNative;
+
+        totalBudgetLabel.setText("Total Budget (INR): " + totalBudget);
+        totalExpenseLabel.setText("Total Expenses: " +
+                totalExpensesNative + " INR | " +
+                totalExpensesConverted + " " + trip.getCurrency());
+
+        remainingLabel.setText("Remaining Budget (INR): " + remaining);
     }
 }

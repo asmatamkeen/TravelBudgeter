@@ -7,30 +7,34 @@ import java.awt.*;
 
 public class HomePanel extends JPanel {
 
-    public HomePanel(Runnable onStartTrip) {
+    public HomePanel(JFrame parentFrame) {
 
-        setBackground(new Color(40, 45, 70));
-        setLayout(new GridLayout(6, 2, 20, 20));
-        setBorder(BorderFactory.createEmptyBorder(80, 200, 80, 200));
+        setLayout(new GridLayout(5, 2, 10, 10));
 
-        JTextField destinationField = new JTextField();
+        String[] cities = {
+                "Paris",
+                "London",
+                "Madrid",
+                "New York",
+                "Los Angeles"
+        };
+
+        JComboBox<String> destinationBox = new JComboBox<>(cities);
         JTextField budgetField = new JTextField();
         JTextField daysField = new JTextField();
         JTextField travelersField = new JTextField();
-
         JButton startButton = new JButton("Start Trip");
-        styleButton(startButton);
 
-        add(createLabel("Destination:"));
-        add(destinationField);
+        add(new JLabel("Destination:"));
+        add(destinationBox);
 
-        add(createLabel("Total Budget:"));
+        add(new JLabel("Total Budget (INR):"));
         add(budgetField);
 
-        add(createLabel("Duration (Days):"));
+        add(new JLabel("Days:"));
         add(daysField);
 
-        add(createLabel("Number of Travelers:"));
+        add(new JLabel("Travelers:"));
         add(travelersField);
 
         add(new JLabel());
@@ -38,30 +42,20 @@ public class HomePanel extends JPanel {
 
         startButton.addActionListener(e -> {
             try {
-                Trip.destination = destinationField.getText();
-                Trip.budget = Double.parseDouble(budgetField.getText());
-                Trip.days = Integer.parseInt(daysField.getText());
-                Trip.travelers = Integer.parseInt(travelersField.getText());
 
-                onStartTrip.run();
+                Trip trip = new Trip(
+                        (String) destinationBox.getSelectedItem(),
+                        Double.parseDouble(budgetField.getText()),
+                        Integer.parseInt(daysField.getText()),
+                        Integer.parseInt(travelersField.getText())
+                );
+
+                parentFrame.dispose();
+                new DashboardFrame(trip);
 
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Please enter valid details!");
+                JOptionPane.showMessageDialog(this, "Enter valid details!");
             }
         });
-    }
-
-    private JLabel createLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        return label;
-    }
-
-    private void styleButton(JButton button) {
-        button.setBackground(new Color(59, 130, 246));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 16));
     }
 }

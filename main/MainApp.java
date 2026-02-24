@@ -1,9 +1,22 @@
-package main;
+import gui.HomePanel;
 
-import gui.DashboardFrame;
+import javax.swing.*;
 
-public class MainApp {
+public class MainApp extends JFrame {
+
+    public MainApp() {
+
+        setTitle("Travel Budgeter");
+        setSize(500, 350);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        setContentPane(new HomePanel(this));
+
+        setVisible(true);
+    }
+
     public static void main(String[] args) {
-        new DashboardFrame().setVisible(true);
+        new MainApp();
     }
 }

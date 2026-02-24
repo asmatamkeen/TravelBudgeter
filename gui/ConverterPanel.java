@@ -1,86 +1,59 @@
 package gui;
 
-import model.Trip;
+import logic.CurrencyConverter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
 
 public class ConverterPanel extends JPanel {
 
-    private JLabel resultLabel;
-    private HashMap<String, Double> rates;
+    public ConverterPanel(DashboardFrame frame) {
 
-    public ConverterPanel() {
+        setLayout(new GridLayout(5, 2, 10, 10));
 
-        setBackground(new Color(40, 45, 70));
-        setLayout(new GridLayout(4, 2, 20, 20));
-        setBorder(BorderFactory.createEmptyBorder(80, 200, 80, 200));
+        String[] currencies = {"INR", "USD", "EUR", "GBP"};
 
-        initializeRates();
+        JComboBox<String> fromBox = new JComboBox<>(currencies);
+        JComboBox<String> toBox = new JComboBox<>(currencies);
 
         JTextField amountField = new JTextField();
-        amountField.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        JLabel resultLabel = new JLabel("Result: ");
 
-        JButton convertButton = new JButton("Convert");
-        convertButton.setBackground(new Color(59, 130, 246));
-        convertButton.setForeground(Color.WHITE);
-        convertButton.setFocusPainted(false);
+        JButton convertBtn = new JButton("Convert");
+        JButton backBtn = new JButton("Back");
 
-        resultLabel = new JLabel("Result: ");
-        resultLabel.setForeground(Color.WHITE);
-        resultLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        add(new JLabel("From:"));
+        add(fromBox);
 
-        add(createLabel("Amount (INR):"));
+        add(new JLabel("To:"));
+        add(toBox);
+
+        add(new JLabel("Amount:"));
         add(amountField);
-        add(new JLabel());
-        add(convertButton);
-        add(new JLabel());
+
+        add(convertBtn);
+        add(backBtn);
+
         add(resultLabel);
 
-        convertButton.addActionListener(e -> {
+        convertBtn.addActionListener(e -> {
             try {
+
                 double amount = Double.parseDouble(amountField.getText());
 
-                String destinationCurrency = getCurrencyForDestination(Trip.destination);
+                double result = CurrencyConverter.convert(
+                        amount,
+                        (String) fromBox.getSelectedItem(),
+                        (String) toBox.getSelectedItem()
+                );
 
-                double amountInUSD = amount / rates.get("INR");
-                double converted = amountInUSD * rates.get(destinationCurrency);
-
-                resultLabel.setText("Result: " + String.format("%.2f", converted) + " " + destinationCurrency);
+                resultLabel.setText("Result: " + result);
 
             } catch (Exception ex) {
-                resultLabel.setText("Invalid Input!");
+                JOptionPane.showMessageDialog(this, "Invalid input!");
             }
         });
-    }
 
-    private void initializeRates() {
-        rates = new HashMap<>();
-        rates.put("USD", 1.0);
-        rates.put("EUR", 0.92);
-        rates.put("INR", 83.0);
-        rates.put("GBP", 0.78);
-        rates.put("JPY", 150.0);
-    }
-
-    private String getCurrencyForDestination(String destination) {
-        if (destination == null) return "USD";
-
-        switch (destination.toLowerCase()) {
-            case "usa": return "USD";
-            case "uk": return "GBP";
-            case "japan": return "JPY";
-            case "india": return "INR";
-            case "europe": return "EUR";
-            default: return "USD";
-        }
-    }
-
-    private JLabel createLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        return label;
+        backBtn.addActionListener(e -> frame.showDashboardPanel());
     }
 }

@@ -1,7 +1,9 @@
 package gui;
 
+import logic.CurrencyConverter;
 import logic.ExpenseManager;
 import model.Expense;
+import model.Trip;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -11,23 +13,18 @@ public class ExpensePanel extends JPanel {
 
     private DefaultTableModel tableModel;
 
-    public ExpensePanel() {
+    public ExpensePanel(DashboardFrame frame, Trip trip) {
 
-        setBackground(new Color(40, 45, 70));
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
 
-        JPanel formPanel = new JPanel(new GridLayout(2, 3, 15, 15));
-        formPanel.setBackground(new Color(40, 45, 70));
+        JPanel formPanel = new JPanel(new GridLayout(2, 3, 10, 10));
 
         JTextField categoryField = new JTextField();
         JTextField amountField = new JTextField();
         JButton addButton = new JButton("Add Expense");
 
-        styleButton(addButton);
-
-        formPanel.add(createLabel("Category:"));
-        formPanel.add(createLabel("Amount:"));
+        formPanel.add(new JLabel("Category:"));
+        formPanel.add(new JLabel("Amount (INR):"));
         formPanel.add(new JLabel());
 
         formPanel.add(categoryField);
@@ -38,23 +35,37 @@ public class ExpensePanel extends JPanel {
 
         tableModel = new DefaultTableModel();
         tableModel.addColumn("Category");
-        tableModel.addColumn("Amount");
+        tableModel.addColumn("Amount (INR)");
+        tableModel.addColumn("Amount (" + trip.getCurrency() + ")");
 
         JTable table = new JTable(tableModel);
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        table.setRowHeight(25);
-
         add(new JScrollPane(table), BorderLayout.CENTER);
+
+        JButton backBtn = new JButton("Back");
+        add(backBtn, BorderLayout.SOUTH);
+
+        backBtn.addActionListener(e -> frame.showDashboardPanel());
 
         addButton.addActionListener(e -> {
             try {
-                String category = categoryField.getText();
-                double amount = Double.parseDouble(amountField.getText());
 
-                Expense expense = new Expense(category, amount);
+                String category = categoryField.getText();
+                double nativeAmount = Double.parseDouble(amountField.getText());
+
+                double convertedAmount = CurrencyConverter.convert(
+                        nativeAmount,
+                        "INR",
+                        trip.getCurrency()
+                );
+
+                Expense expense = new Expense(category, nativeAmount, convertedAmount);
                 ExpenseManager.addExpense(expense);
 
-                tableModel.addRow(new Object[]{category, amount});
+                tableModel.addRow(new Object[]{
+                        category,
+                        nativeAmount,
+                        convertedAmount
+                });
 
                 categoryField.setText("");
                 amountField.setText("");
@@ -63,19 +74,5 @@ public class ExpensePanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "Invalid Input!");
             }
         });
-    }
-
-    private JLabel createLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        return label;
-    }
-
-    private void styleButton(JButton button) {
-        button.setBackground(new Color(59, 130, 246));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
     }
 }

@@ -15,10 +15,18 @@ public class ExpenseManager {
         return expenses;
     }
 
-    public static double getTotal() {
+    public static double getTotalNative() {
         double total = 0;
         for (Expense e : expenses) {
-            total += e.getAmount();
+            total += e.getNativeAmount();
+        }
+        return total;
+    }
+
+    public static double getTotalConverted() {
+        double total = 0;
+        for (Expense e : expenses) {
+            total += e.getConvertedAmount();
         }
         return total;
     }
