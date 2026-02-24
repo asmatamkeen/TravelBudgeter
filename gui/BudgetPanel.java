@@ -14,7 +14,7 @@ public class BudgetPanel extends JPanel {
 
     public BudgetPanel(DashboardFrame frame, Trip trip) {
 
-        setLayout(new GridLayout(5, 1, 15, 15));
+        setLayout(new GridLayout(6, 1, 15, 15));
         setBorder(BorderFactory.createEmptyBorder(40, 60, 40, 60));
 
         JLabel title = new JLabel("Budget Overview", SwingConstants.CENTER);
@@ -43,10 +43,8 @@ public class BudgetPanel extends JPanel {
     private void updateBudget(Trip trip) {
 
         double totalBudget = trip.getBudget();
-
         double totalExpensesNative = ExpenseManager.getTotalNative();
         double totalExpensesConverted = ExpenseManager.getTotalConverted();
-
         double remaining = totalBudget - totalExpensesNative;
 
         totalBudgetLabel.setText("Total Budget (INR): " + totalBudget);
@@ -55,5 +53,33 @@ public class BudgetPanel extends JPanel {
                 totalExpensesConverted + " " + trip.getCurrency());
 
         remainingLabel.setText("Remaining Budget (INR): " + remaining);
+
+        // 🔥 Budget Status Logic
+        if (remaining < 0) {
+
+            remainingLabel.setForeground(Color.RED);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "⚠ Budget Exceeded!\nYou have overspent your trip budget.",
+                    "Warning",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+        } else if (remaining <= totalBudget * 0.2) {
+
+            remainingLabel.setForeground(Color.ORANGE);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "⚠ Warning: You are close to your budget limit!",
+                    "Alert",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+        } else {
+
+            remainingLabel.setForeground(new Color(0, 128, 0)); // Dark Green
+        }
     }
 }
