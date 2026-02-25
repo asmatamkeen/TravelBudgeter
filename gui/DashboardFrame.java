@@ -1,76 +1,122 @@
 package gui;
 
+import logic.HotelManager;
+import model.Hotel;
 import model.Trip;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class DashboardFrame extends JFrame {
 
+    private CardLayout cardLayout;
+    private JPanel container;
     private Trip trip;
 
     public DashboardFrame(Trip trip) {
 
         this.trip = trip;
 
-        setTitle("Dashboard - " + trip.getDestination());
-        setSize(600, 450);
+        setTitle("Travel Dashboard");
+        setSize(600, 550);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        showDashboardPanel();
+        cardLayout = new CardLayout();
+        container = new JPanel(cardLayout);
 
+        // Panels
+        container.add(createDashboardPanel(), "DASHBOARD");
+        container.add(new BudgetPanel(this, trip), "BUDGET");
+        container.add(new ConverterPanel(this), "CONVERTER");
+
+        add(container);
         setVisible(true);
     }
 
-    public void showDashboardPanel() {
+    // 🔹 Main dashboard screen
+    private JPanel createDashboardPanel() {
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(5, 1, 15, 15));
-        panel.setBorder(BorderFactory.createEmptyBorder(40, 80, 40, 80));
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
 
-        JLabel welcomeLabel = new JLabel(
-                "Welcome to " + trip.getDestination() +
-                        " (" + trip.getCurrency() + ")",
-                SwingConstants.CENTER
+        JPanel hotelListPanel = new JPanel();
+        hotelListPanel.setLayout(new BoxLayout(hotelListPanel, BoxLayout.Y_AXIS));
+
+        HotelManager manager = new HotelManager();
+        List<Hotel> hotels = manager.getHotelsByCity(trip.getDestination());
+
+        JLabel tripInfo = new JLabel(
+                "Destination: " + trip.getDestination() +
+                        " | Budget: " + trip.getCurrency() + " " + trip.getBudget()
         );
-        welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
 
-        JButton budgetBtn = new JButton("Budget Overview");
-        JButton expenseBtn = new JButton("Expense Planner");
-        JButton converterBtn = new JButton("Currency Converter");
-        JButton hotelBtn = new JButton("Hotel Plans");
-        JButton exitBtn = new JButton("Exit");
+        hotelListPanel.add(tripInfo);
 
-        // Navigation
-        budgetBtn.addActionListener(e ->
-                switchPanel(new BudgetPanel(this, trip)));
+        for (Hotel hotel : hotels) {
 
-        expenseBtn.addActionListener(e ->
-                switchPanel(new ExpensePanel(this, trip)));
+            JPanel hotelPanel = new JPanel(new GridLayout(4, 1));
+            hotelPanel.setBorder(BorderFactory.createTitledBorder(hotel.getName()));
 
-        converterBtn.addActionListener(e ->
-                switchPanel(new ConverterPanel(this)));
-        hotelBtn.addActionListener(e ->
-                switchPanel(new HotelPanel(this, trip)));
+            hotelPanel.add(new JLabel("Basic: " + trip.getCurrency() + " " + hotel.getBasic()));
+            hotelPanel.add(new JLabel("Standard: " + trip.getCurrency() + " " + hotel.getStandard()));
+            hotelPanel.add(new JLabel("Premium: " + trip.getCurrency() + " " + hotel.getPremium()));
 
-        exitBtn.addActionListener(e -> dispose());
+            JButton customize = new JButton("Customize Plan");
 
-        panel.add(welcomeLabel);
-        panel.add(budgetBtn);
-        panel.add(expenseBtn);
-        panel.add(converterBtn);
-        panel.add(hotelBtn);
-        panel.add(exitBtn);
+            customize.addActionListener(e -> {
+                String input = JOptionPane.showInputDialog(
+                        this,
+                        "Enter custom price per day:"
+                );
 
-        setContentPane(panel);
-        revalidate();
-        repaint();
+                if (input != null) {
+                    try {
+                        double custom = Double.parseDouble(input);
+                        JOptionPane.showMessageDialog(this,
+                                "Custom plan price: " + trip.getCurrency() + " " + custom);
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "Invalid amount");
+                    }
+                }
+            });
+
+            hotelPanel.add(customize);
+            hotelListPanel.add(hotelPanel);
+        }
+
+        JScrollPane scrollPane = new JScrollPane(hotelListPanel);
+
+        JPanel bottomPanel = new JPanel(new GridLayout(1, 3, 10, 10));
+
+        JButton expenseButton = new JButton("Expense Summary");
+        JButton budgetButton = new JButton("Budget Overview");
+        JButton converterButton = new JButton("Currency Converter");
+
+        expenseButton.addActionListener(e -> new ExpensePanel(trip));
+        budgetButton.addActionListener(e -> showBudgetPanel());
+        converterButton.addActionListener(e -> showConverterPanel());
+
+        bottomPanel.add(expenseButton);
+        bottomPanel.add(budgetButton);
+        bottomPanel.add(converterButton);
+
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        return mainPanel;
     }
 
-    public void switchPanel(JPanel panel) {
-        setContentPane(panel);
-        revalidate();
-        repaint();
+    public void showDashboardPanel() {
+        cardLayout.show(container, "DASHBOARD");
+    }
+
+    public void showBudgetPanel() {
+        cardLayout.show(container, "BUDGET");
+    }
+
+    public void showConverterPanel() {
+        cardLayout.show(container, "CONVERTER");
     }
 }

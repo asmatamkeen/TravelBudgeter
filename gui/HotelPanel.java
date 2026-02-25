@@ -1,88 +1,40 @@
 package gui;
 
-import logic.CurrencyConverter;
-import logic.ExpenseManager;
-import logic.HotelManager;
-import model.Expense;
 import model.Hotel;
-import model.Trip;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 
 public class HotelPanel extends JPanel {
 
-    public HotelPanel(DashboardFrame frame, Trip trip) {
+    public HotelPanel(Hotel hotel) {
 
-        setLayout(new GridLayout(6, 2, 10, 10));
-        setBorder(BorderFactory.createEmptyBorder(30, 60, 30, 60));
+        setLayout(new GridLayout(4, 1));
+        setBorder(BorderFactory.createTitledBorder(hotel.getName()));
 
-        ArrayList<Hotel> hotels = HotelManager.getHotels(trip.getDestination());
+        add(new JLabel("Basic: ₹" + hotel.getBasic()));
+        add(new JLabel("Standard: ₹" + hotel.getStandard()));
+        add(new JLabel("Premium: ₹" + hotel.getPremium()));
 
-        JComboBox<String> hotelBox = new JComboBox<>();
-        for (Hotel h : hotels) {
-            hotelBox.addItem(h.getName() + " (Per Day: " + h.getPricePerDay() + " " + trip.getCurrency() + ")");
-        }
+        JButton customize = new JButton("Customize Plan");
 
-        JLabel totalCostLabel = new JLabel("Total Cost: ");
-
-        JButton calculateBtn = new JButton("Calculate");
-        JButton bookBtn = new JButton("Add to Expenses");
-        JButton backBtn = new JButton("Back");
-
-        add(new JLabel("Select Hotel:"));
-        add(hotelBox);
-
-        add(new JLabel("Days:"));
-        add(new JLabel(String.valueOf(trip.getDays())));
-
-        add(new JLabel("Travelers:"));
-        add(new JLabel(String.valueOf(trip.getTravelers())));
-
-        add(calculateBtn);
-        add(totalCostLabel);
-
-        add(bookBtn);
-        add(backBtn);
-
-        calculateBtn.addActionListener(e -> {
-            int index = hotelBox.getSelectedIndex();
-            Hotel selected = hotels.get(index);
-
-            double totalCost = selected.getPricePerDay()
-                    * trip.getDays()
-                    * trip.getTravelers();
-
-            totalCostLabel.setText("Total Cost: " + totalCost + " " + trip.getCurrency());
-        });
-
-        bookBtn.addActionListener(e -> {
-            int index = hotelBox.getSelectedIndex();
-            Hotel selected = hotels.get(index);
-
-            double totalCost = selected.getPricePerDay()
-                    * trip.getDays()
-                    * trip.getTravelers();
-
-            double convertedToINR = CurrencyConverter.convert(
-                    totalCost,
-                    trip.getCurrency(),
-                    "INR"
+        customize.addActionListener(e -> {
+            String input = JOptionPane.showInputDialog(
+                    this,
+                    "Enter custom price per day:"
             );
 
-            Expense expense = new Expense(
-                    "Hotel - " + selected.getName(),
-                    convertedToINR,
-                    totalCost
-            );
-
-            ExpenseManager.addExpense(expense);
-
-            JOptionPane.showMessageDialog(this,
-                    "Hotel added to expenses successfully!");
+            if (input != null) {
+                try {
+                    double custom = Double.parseDouble(input);
+                    JOptionPane.showMessageDialog(this,
+                            "Custom plan price: ₹" + custom);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Invalid amount");
+                }
+            }
         });
 
-        backBtn.addActionListener(e -> frame.showDashboardPanel());
+        add(customize);
     }
 }

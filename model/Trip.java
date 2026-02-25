@@ -8,30 +8,12 @@ public class Trip {
     private int travelers;
     private String currency;
 
-    public Trip(String destination, double budget, int days, int travelers) {
+    public Trip(String destination, double budget, int days, int travelers, String currency) {
         this.destination = destination;
         this.budget = budget;
         this.days = days;
         this.travelers = travelers;
-        setCurrency();
-    }
-
-    private void setCurrency() {
-        switch (destination) {
-            case "Paris":
-            case "Madrid":
-                currency = "EUR";
-                break;
-            case "London":
-                currency = "GBP";
-                break;
-            case "New York":
-            case "Los Angeles":
-                currency = "USD";
-                break;
-            default:
-                currency = "USD";
-        }
+        this.currency = currency;
     }
 
     public String getDestination() {

@@ -1,53 +1,58 @@
 package logic;
 
 import model.Hotel;
-
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 public class HotelManager {
 
-    private static HashMap<String, ArrayList<Hotel>> hotelData = new HashMap<>();
-
-    static {
-
-        // Paris
-        ArrayList<Hotel> parisHotels = new ArrayList<>();
-        parisHotels.add(new Hotel("Eiffel Stay", 120));
-        parisHotels.add(new Hotel("Paris Luxury Inn", 200));
-        parisHotels.add(new Hotel("Budget Paris Lodge", 80));
-        hotelData.put("Paris", parisHotels);
-
-        // London
-        ArrayList<Hotel> londonHotels = new ArrayList<>();
-        londonHotels.add(new Hotel("Royal London Hotel", 150));
-        londonHotels.add(new Hotel("Thames View Inn", 220));
-        londonHotels.add(new Hotel("London Budget Stay", 90));
-        hotelData.put("London", londonHotels);
-
-        // Madrid
-        ArrayList<Hotel> madridHotels = new ArrayList<>();
-        madridHotels.add(new Hotel("Madrid Central", 110));
-        madridHotels.add(new Hotel("Royal Madrid Palace", 180));
-        madridHotels.add(new Hotel("Budget Madrid Lodge", 70));
-        hotelData.put("Madrid", madridHotels);
-
-        // New York
-        ArrayList<Hotel> nyHotels = new ArrayList<>();
-        nyHotels.add(new Hotel("NY Grand Hotel", 250));
-        nyHotels.add(new Hotel("Manhattan Stay", 300));
-        nyHotels.add(new Hotel("NY Budget Inn", 150));
-        hotelData.put("New York", nyHotels);
-
-        // Los Angeles
-        ArrayList<Hotel> laHotels = new ArrayList<>();
-        laHotels.add(new Hotel("LA Sunset Hotel", 200));
-        laHotels.add(new Hotel("Hollywood Palace", 280));
-        laHotels.add(new Hotel("LA Budget Stay", 130));
-        hotelData.put("Los Angeles", laHotels);
+    public String[] getCities() {
+        return new String[]{
+                "Paris",
+                "London",
+                "Madrid",
+                "New York",
+                "Los Angeles"
+        };
     }
 
-    public static ArrayList<Hotel> getHotels(String city) {
-        return hotelData.get(city);
+    public List<Hotel> getHotelsByCity(String city) {
+
+        List<Hotel> hotels = new ArrayList<>();
+
+        switch (city) {
+
+            case "Paris":
+                hotels.add(new Hotel("Hotel Lumiere", 4000, 7000, 10000));
+                hotels.add(new Hotel("Eiffel Stay", 3500, 6000, 9000));
+                hotels.add(new Hotel("Royal Paris Inn", 5000, 8500, 12000));
+                break;
+
+            case "London":
+                hotels.add(new Hotel("London Bridge Hotel", 4500, 7500, 11000));
+                hotels.add(new Hotel("Royal Thames", 4000, 7000, 10000));
+                hotels.add(new Hotel("Oxford Suites", 3800, 6500, 9500));
+                break;
+
+            case "Madrid":
+                hotels.add(new Hotel("Madrid Central", 3000, 5500, 8000));
+                hotels.add(new Hotel("Plaza Inn", 3200, 6000, 8500));
+                hotels.add(new Hotel("Sunset Madrid", 2800, 5000, 7500));
+                break;
+
+            case "New York":
+                hotels.add(new Hotel("Manhattan Elite", 6000, 10000, 15000));
+                hotels.add(new Hotel("Central Park Stay", 5500, 9000, 14000));
+                hotels.add(new Hotel("NYC Comfort", 5000, 8500, 13000));
+                break;
+
+            case "Los Angeles":
+                hotels.add(new Hotel("LA Sunset Hotel", 5000, 8500, 12000));
+                hotels.add(new Hotel("Hollywood Stay", 4800, 8000, 11500));
+                hotels.add(new Hotel("Beverly Suites", 6500, 11000, 16000));
+                break;
+        }
+
+        return hotels;
     }
 }

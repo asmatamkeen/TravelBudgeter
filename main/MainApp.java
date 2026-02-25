@@ -2,21 +2,17 @@ import gui.HomePanel;
 
 import javax.swing.*;
 
-public class MainApp extends JFrame {
-
-    public MainApp() {
-
-        setTitle("Travel Budgeter");
-        setSize(500, 350);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-
-        setContentPane(new HomePanel(this));
-
-        setVisible(true);
-    }
+public class MainApp {
 
     public static void main(String[] args) {
-        new MainApp();
+
+        JFrame frame = new JFrame("Travel Budget Planner");
+        frame.setSize(400, 350);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+
+        frame.add(new HomePanel(frame));
+
+        frame.setVisible(true);
     }
 }

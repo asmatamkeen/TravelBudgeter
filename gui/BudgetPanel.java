@@ -48,13 +48,13 @@ public class BudgetPanel extends JPanel {
         double remaining = totalBudget - totalExpensesNative;
 
         totalBudgetLabel.setText("Total Budget (INR): " + totalBudget);
+
         totalExpenseLabel.setText("Total Expenses: " +
                 totalExpensesNative + " INR | " +
                 totalExpensesConverted + " " + trip.getCurrency());
 
         remainingLabel.setText("Remaining Budget (INR): " + remaining);
 
-        // 🔥 Budget Status Logic
         if (remaining < 0) {
 
             remainingLabel.setForeground(Color.RED);
@@ -79,7 +79,7 @@ public class BudgetPanel extends JPanel {
 
         } else {
 
-            remainingLabel.setForeground(new Color(0, 128, 0)); // Dark Green
+            remainingLabel.setForeground(new Color(0, 128, 0));
         }
     }
 }
