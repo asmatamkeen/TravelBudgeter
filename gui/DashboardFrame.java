@@ -59,9 +59,23 @@ public class DashboardFrame extends JFrame {
             JPanel hotelPanel = new JPanel(new GridLayout(4, 1));
             hotelPanel.setBorder(BorderFactory.createTitledBorder(hotel.getName()));
 
-            hotelPanel.add(new JLabel("Basic: " + trip.getCurrency() + " " + hotel.getBasic()));
-            hotelPanel.add(new JLabel("Standard: " + trip.getCurrency() + " " + hotel.getStandard()));
-            hotelPanel.add(new JLabel("Premium: " + trip.getCurrency() + " " + hotel.getPremium()));
+            hotelPanel.add(new JLabel(
+                    "<html><b>Basic:</b> " + trip.getCurrency() + " " + hotel.getBasic() +
+                            "<br>Features: " + hotel.getBasicFeatures() +
+                            "</html>"
+            ));
+
+            hotelPanel.add(new JLabel(
+                    "<html><b>Standard:</b> " + trip.getCurrency() + " " + hotel.getStandard() +
+                            "<br>Features: " + hotel.getStandardFeatures() +
+                            "</html>"
+            ));
+
+            hotelPanel.add(new JLabel(
+                    "<html><b>Premium:</b> " + trip.getCurrency() + " " + hotel.getPremium() +
+                            "<br>Features: " + hotel.getPremiumFeatures() +
+                            "</html>"
+            ));
 
             JButton customize = new JButton("Customize Plan");
 
