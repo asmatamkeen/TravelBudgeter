@@ -6,131 +6,213 @@ import model.Trip;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.Map;
 
 public class DashboardFrame extends JFrame {
 
-    private CardLayout cardLayout;
-    private JPanel container;
-    private Trip trip;
+    private JComboBox<String> cityCombo;
+    private JComboBox<Hotel> hotelCombo;
+    private JTextArea detailsArea;
 
+    private JPanel customPanel;
+    private JLabel totalLabel;
+
+    private HotelManager hotelManager;
+    private Trip trip;   // ✅ use this trip
+
+    // ================= CONSTRUCTOR =================
     public DashboardFrame(Trip trip) {
 
-        this.trip = trip;
+        this.trip = trip;   // ✅ IMPORTANT FIX
+        hotelManager = new HotelManager();
 
-        setTitle("Travel Dashboard");
-        setSize(600, 550);
+        setTitle("Travel Budget Planner - Dashboard");
+        setSize(750, 650);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        cardLayout = new CardLayout();
-        container = new JPanel(cardLayout);
+        // ================= TOP PANEL =================
+        JPanel topPanel = new JPanel(new GridLayout(2, 2, 10, 10));
 
-        // Panels
-        container.add(createDashboardPanel(), "DASHBOARD");
-        container.add(new BudgetPanel(this, trip), "BUDGET");
-        container.add(new ConverterPanel(this), "CONVERTER");
+        cityCombo = new JComboBox<>(hotelManager.getCities());
+        hotelCombo = new JComboBox<>();
 
-        add(container);
+        topPanel.add(new JLabel("Select City:"));
+        topPanel.add(cityCombo);
+        topPanel.add(new JLabel("Select Hotel:"));
+        topPanel.add(hotelCombo);
+
+        add(topPanel, BorderLayout.NORTH);
+
+        // ================= CENTER =================
+        detailsArea = new JTextArea();
+        detailsArea.setEditable(false);
+        add(new JScrollPane(detailsArea), BorderLayout.CENTER);
+
+        // ================= BOTTOM =================
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+
+        JButton showButton = new JButton("Show Plans");
+        bottomPanel.add(showButton, BorderLayout.NORTH);
+
+        customPanel = new JPanel(new GridLayout(0, 1));
+        bottomPanel.add(new JScrollPane(customPanel), BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel();
+
+        JButton basicBtn = new JButton("Select Basic");
+        JButton standardBtn = new JButton("Select Standard");
+        JButton premiumBtn = new JButton("Select Premium");
+        JButton customBtn = new JButton("Add Custom Plan");
+
+        buttonPanel.add(basicBtn);
+        buttonPanel.add(standardBtn);
+        buttonPanel.add(premiumBtn);
+        buttonPanel.add(customBtn);
+
+        bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        // ================= RIGHT SIDE TOTAL =================
+        totalLabel = new JLabel();
+        totalLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 20));
+        add(totalLabel, BorderLayout.EAST);
+
+        updateTotalLabel();
+
+        // ================= LISTENERS =================
+        cityCombo.addActionListener(this::loadHotels);
+        showButton.addActionListener(this::showPlans);
+
+        basicBtn.addActionListener(e -> addPlanPrice("basic"));
+        standardBtn.addActionListener(e -> addPlanPrice("standard"));
+        premiumBtn.addActionListener(e -> addPlanPrice("premium"));
+        customBtn.addActionListener(this::calculateCustom);
+
+        loadHotels(null);
+
         setVisible(true);
     }
 
-    // 🔹 Main dashboard screen
-    private JPanel createDashboardPanel() {
+    // ================= LOAD HOTELS =================
+    private void loadHotels(ActionEvent e) {
 
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
+        hotelCombo.removeAllItems();
 
-        JPanel hotelListPanel = new JPanel();
-        hotelListPanel.setLayout(new BoxLayout(hotelListPanel, BoxLayout.Y_AXIS));
+        String city = (String) cityCombo.getSelectedItem();
+        List<Hotel> hotels = hotelManager.getHotelsByCity(city);
 
-        HotelManager manager = new HotelManager();
-        List<Hotel> hotels = manager.getHotelsByCity(trip.getDestination());
+        for (Hotel h : hotels) {
+            hotelCombo.addItem(h);
+        }
+    }
 
-        JLabel tripInfo = new JLabel(
-                "Destination: " + trip.getDestination() +
-                        " | Budget: " + trip.getCurrency() + " " + trip.getBudget()
-        );
+    // ================= SHOW PLANS =================
+    private void showPlans(ActionEvent e) {
 
-        hotelListPanel.add(tripInfo);
+        Hotel hotel = (Hotel) hotelCombo.getSelectedItem();
+        if (hotel == null) return;
 
-        for (Hotel hotel : hotels) {
+        detailsArea.setText("");
 
-            JPanel hotelPanel = new JPanel(new GridLayout(4, 1));
-            hotelPanel.setBorder(BorderFactory.createTitledBorder(hotel.getName()));
+        detailsArea.append("Hotel: " + hotel.getName() + "\n\n");
 
-            hotelPanel.add(new JLabel(
-                    "<html><b>Basic:</b> " + trip.getCurrency() + " " + hotel.getBasic() +
-                            "<br>Features: " + hotel.getBasicFeatures() +
-                            "</html>"
-            ));
+        detailsArea.append("BASIC PLAN - ₹" + hotel.getBasic() + "\n");
+        detailsArea.append("Features: " + hotel.getBasicFeatures() + "\n\n");
 
-            hotelPanel.add(new JLabel(
-                    "<html><b>Standard:</b> " + trip.getCurrency() + " " + hotel.getStandard() +
-                            "<br>Features: " + hotel.getStandardFeatures() +
-                            "</html>"
-            ));
+        detailsArea.append("STANDARD PLAN - ₹" + hotel.getStandard() + "\n");
+        detailsArea.append("Features: " + hotel.getStandardFeatures() + "\n\n");
 
-            hotelPanel.add(new JLabel(
-                    "<html><b>Premium:</b> " + trip.getCurrency() + " " + hotel.getPremium() +
-                            "<br>Features: " + hotel.getPremiumFeatures() +
-                            "</html>"
-            ));
+        detailsArea.append("PREMIUM PLAN - ₹" + hotel.getPremium() + "\n");
+        detailsArea.append("Features: " + hotel.getPremiumFeatures() + "\n\n");
 
-            JButton customize = new JButton("Customize Plan");
+        // Load Custom Features
+        customPanel.removeAll();
+        Map<String, Double> features = hotel.getCustomFeatures();
 
-            customize.addActionListener(e -> {
-                String input = JOptionPane.showInputDialog(
-                        this,
-                        "Enter custom price per day:"
-                );
+        for (String feature : features.keySet()) {
 
-                if (input != null) {
-                    try {
-                        double custom = Double.parseDouble(input);
-                        JOptionPane.showMessageDialog(this,
-                                "Custom plan price: " + trip.getCurrency() + " " + custom);
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(this, "Invalid amount");
-                    }
-                }
-            });
+            JCheckBox checkBox =
+                    new JCheckBox(feature + " (₹" + features.get(feature) + ")");
 
-            hotelPanel.add(customize);
-            hotelListPanel.add(hotelPanel);
+            checkBox.setActionCommand(feature);
+            customPanel.add(checkBox);
         }
 
-        JScrollPane scrollPane = new JScrollPane(hotelListPanel);
-
-        JPanel bottomPanel = new JPanel(new GridLayout(1, 3, 10, 10));
-
-        JButton expenseButton = new JButton("Expense Summary");
-        JButton budgetButton = new JButton("Budget Overview");
-        JButton converterButton = new JButton("Currency Converter");
-
-        expenseButton.addActionListener(e -> new ExpensePanel(trip));
-        budgetButton.addActionListener(e -> showBudgetPanel());
-        converterButton.addActionListener(e -> showConverterPanel());
-
-        bottomPanel.add(expenseButton);
-        bottomPanel.add(budgetButton);
-        bottomPanel.add(converterButton);
-
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
-
-        return mainPanel;
+        customPanel.revalidate();
+        customPanel.repaint();
     }
 
-    public void showDashboardPanel() {
-        cardLayout.show(container, "DASHBOARD");
+    // ================= ADD PLAN PRICE =================
+    private void addPlanPrice(String type) {
+
+        Hotel hotel = (Hotel) hotelCombo.getSelectedItem();
+        if (hotel == null) return;
+
+        double price = 0;
+
+        switch (type) {
+            case "basic":
+                price = hotel.getBasic();
+                break;
+            case "standard":
+                price = hotel.getStandard();
+                break;
+            case "premium":
+                price = hotel.getPremium();
+                break;
+        }
+
+        trip.addExpense(price);   // ✅ add directly to trip
+        updateTotalLabel();
+
+        JOptionPane.showMessageDialog(this,
+                "Added ₹" + price + " to Expense.");
     }
 
-    public void showBudgetPanel() {
-        cardLayout.show(container, "BUDGET");
+    // ================= CUSTOM PLAN =================
+    private void calculateCustom(ActionEvent e) {
+
+        Hotel hotel = (Hotel) hotelCombo.getSelectedItem();
+        if (hotel == null) return;
+
+        Component[] components = customPanel.getComponents();
+        double total = 0;
+
+        for (Component c : components) {
+            if (c instanceof JCheckBox) {
+                JCheckBox cb = (JCheckBox) c;
+                if (cb.isSelected()) {
+                    String feature = cb.getActionCommand();
+                    total += hotel.getCustomFeatures().get(feature);
+                }
+            }
+        }
+
+        trip.addExpense(total);   // ✅ add custom to expense
+        updateTotalLabel();
+
+        JOptionPane.showMessageDialog(this,
+                "Custom Plan Added: ₹" + total);
     }
 
-    public void showConverterPanel() {
-        cardLayout.show(container, "CONVERTER");
+
+    // ================= UPDATE TOTAL =================
+    private void updateTotalLabel() {
+
+        double inr = trip.getTotalExpenseINR();
+        double dest = trip.getTotalExpenseInDestination();
+
+        totalLabel.setText(
+                "<html><b>Total Expense:</b><br><br>" +
+                        "INR: ₹" + String.format("%.2f", inr) + "<br>" +
+                        trip.getDestinationCurrency() + ": "
+                        + String.format("%.2f", dest) +
+                        "</html>"
+        );
     }
 }

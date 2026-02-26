@@ -1,6 +1,5 @@
 package gui;
 
-import logic.ExpenseManager;
 import model.Trip;
 
 import javax.swing.*;
@@ -12,7 +11,13 @@ public class BudgetPanel extends JPanel {
     private JLabel totalExpenseLabel;
     private JLabel remainingLabel;
 
+    private DashboardFrame frame;
+    private Trip trip;
+
     public BudgetPanel(DashboardFrame frame, Trip trip) {
+
+        this.frame = frame;
+        this.trip = trip;
 
         setLayout(new GridLayout(6, 1, 15, 15));
         setBorder(BorderFactory.createEmptyBorder(40, 60, 40, 60));
@@ -27,10 +32,12 @@ public class BudgetPanel extends JPanel {
         JButton refreshBtn = new JButton("Refresh");
         JButton backBtn = new JButton("Back");
 
-        updateBudget(trip);
+        updateBudget();
 
-        refreshBtn.addActionListener(e -> updateBudget(trip));
-        backBtn.addActionListener(e -> frame.showDashboardPanel());
+        refreshBtn.addActionListener(e -> updateBudget());
+
+        // ✅ FIXED BACK BUTTON
+        backBtn.addActionListener(e -> frame.setVisible(true));
 
         add(title);
         add(totalBudgetLabel);
@@ -40,20 +47,23 @@ public class BudgetPanel extends JPanel {
         add(backBtn);
     }
 
-    private void updateBudget(Trip trip) {
+    private void updateBudget() {
 
         double totalBudget = trip.getBudget();
-        double totalExpensesNative = ExpenseManager.getTotalNative();
-        double totalExpensesConverted = ExpenseManager.getTotalConverted();
-        double remaining = totalBudget - totalExpensesNative;
+        double totalExpenseINR = trip.getTotalExpenseINR();
+        double totalExpenseConverted = trip.getTotalExpenseInDestination();
+        double remaining = trip.getRemainingBudget();
 
-        totalBudgetLabel.setText("Total Budget (INR): " + totalBudget);
+        totalBudgetLabel.setText("Total Budget (INR): ₹" + totalBudget);
 
-        totalExpenseLabel.setText("Total Expenses: " +
-                totalExpensesNative + " INR | " +
-                totalExpensesConverted + " " + trip.getCurrency());
+        totalExpenseLabel.setText(
+                "Total Expenses: ₹" + String.format("%.2f", totalExpenseINR)
+                        + " | "
+                        + trip.getDestinationCurrency()
+                        + " " + String.format("%.2f", totalExpenseConverted)
+        );
 
-        remainingLabel.setText("Remaining Budget (INR): " + remaining);
+        remainingLabel.setText("Remaining Budget (INR): ₹" + String.format("%.2f", remaining));
 
         if (remaining < 0) {
 
@@ -69,13 +79,6 @@ public class BudgetPanel extends JPanel {
         } else if (remaining <= totalBudget * 0.2) {
 
             remainingLabel.setForeground(Color.ORANGE);
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "⚠ Warning: You are close to your budget limit!",
-                    "Alert",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
 
         } else {
 

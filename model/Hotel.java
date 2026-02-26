@@ -1,5 +1,8 @@
 package model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Hotel {
 
     private String name;
@@ -12,6 +15,8 @@ public class Hotel {
 
     private double premium;
     private String premiumFeatures;
+
+    private Map<String, Double> customFeatures;
 
     public Hotel(String name,
                  double basic, String basicFeatures,
@@ -28,6 +33,14 @@ public class Hotel {
 
         this.premium = premium;
         this.premiumFeatures = premiumFeatures;
+
+        customFeatures = new HashMap<>();
+
+        // Default Custom Features
+        customFeatures.put("Extra Bed", 1000.0);
+        customFeatures.put("Breakfast", 800.0);
+        customFeatures.put("Airport Pickup", 1500.0);
+        customFeatures.put("Swimming Pool Access", 700.0);
     }
 
     public String getName() {
@@ -56,5 +69,14 @@ public class Hotel {
 
     public String getPremiumFeatures() {
         return premiumFeatures;
+    }
+
+    public Map<String, Double> getCustomFeatures() {
+        return customFeatures;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

@@ -1,15 +1,23 @@
 package gui;
 
 import logic.CurrencyConverter;
+import model.Trip;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class ConverterPanel extends JPanel {
 
-    public ConverterPanel(DashboardFrame frame) {
+    private DashboardFrame frame;
+    private Trip trip;
 
-        setLayout(new GridLayout(5, 2, 10, 10));
+    public ConverterPanel(DashboardFrame frame, Trip trip) {
+
+        this.frame = frame;
+        this.trip = trip;
+
+        setLayout(new GridLayout(6, 2, 10, 10));
+        setBorder(BorderFactory.createEmptyBorder(40, 60, 40, 60));
 
         String[] currencies = {"INR", "USD", "EUR", "GBP"};
 
@@ -36,6 +44,7 @@ public class ConverterPanel extends JPanel {
 
         add(resultLabel);
 
+        // ================= CONVERT =================
         convertBtn.addActionListener(e -> {
             try {
 
@@ -47,13 +56,17 @@ public class ConverterPanel extends JPanel {
                         (String) toBox.getSelectedItem()
                 );
 
-                resultLabel.setText("Result: " + result);
+                resultLabel.setText("Result: " + String.format("%.2f", result));
 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Invalid input!");
             }
         });
 
-        backBtn.addActionListener(e -> frame.showDashboardPanel());
+        // ================= BACK BUTTON =================
+        backBtn.addActionListener(e -> {
+            frame.setVisible(true);
+            ((JFrame) SwingUtilities.getWindowAncestor(this)).dispose();
+        });
     }
 }

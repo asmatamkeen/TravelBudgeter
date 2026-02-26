@@ -2,22 +2,49 @@ package model;
 
 public class Trip {
 
-    private String destination;
+    private String currency;              // Native currency (INR)
+    private String destinationCurrency;   // USD, EUR, etc.
+    private double exchangeRate;          // INR per 1 destination currency
+
     private double budget;
     private int days;
     private int travelers;
-    private String currency;
 
-    public Trip(String destination, double budget, int days, int travelers, String currency) {
-        this.destination = destination;
+    private double totalExpenseINR;
+
+    public Trip(String currency,
+                String destinationCurrency,
+                double exchangeRate,
+                double budget,
+                int days,
+                int travelers) {
+
+        this.currency = currency;
+        this.destinationCurrency = destinationCurrency;
+        this.exchangeRate = exchangeRate;
         this.budget = budget;
         this.days = days;
         this.travelers = travelers;
-        this.currency = currency;
+        this.totalExpenseINR = 0;
     }
 
-    public String getDestination() {
-        return destination;
+    // ===== Add Expense =====
+    public void addExpense(double amountINR) {
+        totalExpenseINR += amountINR;
+    }
+
+    // ===== Getters =====
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public String getDestinationCurrency() {
+        return destinationCurrency;
+    }
+
+    public double getExchangeRate() {
+        return exchangeRate;
     }
 
     public double getBudget() {
@@ -32,7 +59,15 @@ public class Trip {
         return travelers;
     }
 
-    public String getCurrency() {
-        return currency;
+    public double getTotalExpenseINR() {
+        return totalExpenseINR;
+    }
+
+    public double getTotalExpenseInDestination() {
+        return totalExpenseINR / exchangeRate;
+    }
+
+    public double getRemainingBudget() {
+        return budget - totalExpenseINR;
     }
 }

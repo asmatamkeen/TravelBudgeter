@@ -46,12 +46,33 @@ public class HomePanel extends JPanel {
         startButton.addActionListener(e -> {
             try {
 
+                String currency = (String) currencyBox.getSelectedItem();
+                String destination = (String) destinationBox.getSelectedItem();
+
+                double budget = Double.parseDouble(budgetField.getText());
+                int days = Integer.parseInt(daysField.getText());
+                int travelers = Integer.parseInt(travelersField.getText());
+
+                // 🔹 Example exchange rates (you can improve later)
+                double exchangeRate = 83.0; // default USD
+
+                if (destination.equals("USA")) {
+                    exchangeRate = 83.0;
+                } else if (destination.equals("UK")) {
+                    exchangeRate = 105.0;
+                } else if (destination.equals("Singapore")) {
+                    exchangeRate = 61.0;
+                } else if (destination.equals("France")) {
+                    exchangeRate = 90.0;
+                }
+
                 Trip trip = new Trip(
-                        (String) destinationBox.getSelectedItem(),
-                        Double.parseDouble(budgetField.getText()),
-                        Integer.parseInt(daysField.getText()),
-                        Integer.parseInt(travelersField.getText()),
-                        (String) currencyBox.getSelectedItem()
+                        currency,          // native currency
+                        destination,       // destination currency name
+                        exchangeRate,      // exchange rate
+                        budget,            // budget
+                        days,              // days
+                        travelers          // travelers
                 );
 
                 parentFrame.dispose();

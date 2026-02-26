@@ -18,7 +18,7 @@ public class ExpensePanel extends JFrame {
 
         area.setText(
                 "Trip Expense Summary\n\n" +
-                        "Destination: " + trip.getDestination() + "\n" +
+                        "Destination: " + trip.getDestinationCurrency() + "\n" +
                         "Budget: " + trip.getCurrency() + " " + trip.getBudget() + "\n" +
                         "Days: " + trip.getDays() + "\n" +
                         "Travelers: " + trip.getTravelers()
